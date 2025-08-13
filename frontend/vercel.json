@@ -3,12 +3,7 @@
   "builds": [
     { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } }
   ],
-  "framework": "vite",
-  "env": {
-    "VITE_SUPABASE_URL": "@VITE_SUPABASE_URL",
-    "VITE_SUPABASE_ANON_KEY": "@VITE_SUPABASE_ANON_KEY",
-    "VITE_DASHBOARD_STATS_URL": "@DASHBOARD_STATS_URL"
-  }
+  "framework": "vite"
 }
 
 
