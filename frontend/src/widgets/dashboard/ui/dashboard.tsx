@@ -1,9 +1,8 @@
-'use client'
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui'
 import { useGetDashboardStatsQuery } from '@/entities'
+import {FunctionComponent} from "react";
 
-export function Dashboard() {
+export const Dashboard:FunctionComponent = ()=> {
   const { data: stats, isLoading, error } = useGetDashboardStatsQuery()
 
   if (isLoading) {
