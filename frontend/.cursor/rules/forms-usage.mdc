@@ -1,0 +1,46 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Forms Usage Guideline
+
+This document outlines the tech stack and architectural approach for creating and managing forms.
+
+## 1. Tech Stack
+
+The following stack **must** be used for all forms in the project:
+
+-   **State Management:** [React Hook Form](https:/react-hook-form.com)
+-   **Validation & Schemas:** [Zod](https:/zod.dev)
+-   **Connector:** [@hookform/resolvers](https:/github.com/react-hook-form/resolvers) to integrate Zod with React Hook Form.
+
+## 2. Architectural Approach (FSD)
+
+Forms must follow the **"Pages First"** principle, as described in the main [FSD Architecture guide](.src/frontend/src/.cursor/rules/fsd-architecture.mdc).
+
+-   **If a form is used only on a single page, all of its logic must be co-located within that page's slice.**
+-   Do not create a separate `feature` slice for a form that is not reused.
+-   The Zod schema, `useForm` hook call, and `onSubmit` handler should reside in the same file as the page component.
+
+### 2.1. Field-Level Components
+
+It is **strictly mandatory** to encapsulate every individual field into its own dedicated component. Inline implementation of fields using `Controller` is forbidden.
+
+-   **Create dedicated components for each input type** (e.g., `EmailInput`, `PasswordInput`, `CheckboxField`).
+-   These components must handle their own label, input rendering, and error message display.
+-   The main form component then acts as a composer, orchestrating these smaller field components.
+
+> **Note on a past incident:** This rule was made mandatory after an incident where an AI assistant implemented a simple form field inline for the sake of speed. This was deemed an architectural violation, as it harms scalability, reusability, and code predictability. There are no exceptions to this rule.
+
+## 3. API Interaction
+
+-   Submitting form data to the server **must** be handled via **RTK Query** mutations.
+-   The mutation hook (e.g., `useLoginMutation`) is called within the form component.
+-   The `onSubmit` handler calls the mutation function and handles the result (success or error).
+-   The `isLoading` and `isError` states from the mutation hook **must** be used to provide user feedback (e.g., disabling the submit button or displaying an error message).
+
+## 4. Reference Implementation
+
+The implementation on the login page should be used as an example and a basis for new forms:
+-   src/frontend/src/pages/loginPage/ui/LoginPage.tsx

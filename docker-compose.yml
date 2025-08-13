@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: cthulhu_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cthulhu
+      POSTGRES_PASSWORD: cthulhu
+      POSTGRES_DB: cthulhu_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/src/database/init:/docker-entrypoint-initdb.d
+    networks:
+      - cthulhu_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: cthulhu_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - cthulhu_network
+
+volumes:
+  postgres_data:
+
+networks:
+  cthulhu_network:
+    driver: bridge 

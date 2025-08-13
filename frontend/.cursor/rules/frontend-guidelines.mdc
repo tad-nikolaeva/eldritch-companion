@@ -1,0 +1,248 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Frontend Coding Guidelines
+
+These are the coding standards for the frontend codebase.
+
+## General
+- Arrow functions are always preferred over classic `function` declarations.
+
+## 1. JavaScript
+
+### Naming
+
+- **Variables and functions**: `camelCase`
+  ```js
+  const userName = 'Alice';
+  const getUserData = () => { /* ... */ };
+  ```
+
+- **Constants**:
+  - `UPPER_CASE` for primitive constants.
+  - `camelCase` for objects, functions, and other complex types.
+  ```js
+  const MAX_RETRIES = 3;
+  const defaultConfig = { timeout: 1000 };
+  ```
+
+- **Classes and constructors**: `PascalCase`
+  ```js
+  class UserProfile { /* ... */ }
+  const Button = () => { /* ... */ };
+  ```
+
+- **Private methods and properties**: `#` prefix
+  ```js
+  class Service {
+    #privateData = [];
+    #calculateValue() { /* ... */ }
+  }
+  ```
+
+- **Boolean variables**: prefixes `is`, `has`, `should`, `can`, `did`, `will`, `are`
+  ```js
+  const isActive = true;
+  const hasAccess = checkPermissions();
+  ```
+  
+- **No Abbreviations**: Always use full, descriptive names for variables and parameters. Clarity is more important than brevity.
+  ```js
+  // Correct
+  catch (error) { /* ... */ }
+  const handleClick = (event) => { /* ... */ };
+  
+  // Incorrect
+  catch (e) { /* ... */ }
+  const handleClick = (e) => { /* ... */ };
+  ```
+
+### Code Structure
+
+- **Conditional blocks and loops**: Always use curly braces.
+  ```js
+  // Correct
+  if (condition) {
+    return value;
+  }
+  
+  // Incorrect
+  if (condition) return value;
+  ```
+
+- **Arrow functions**: For single-line functions with a simple return, do not use curly braces.
+  ```js
+  // Correct
+  const double = x => x * 2;
+  
+  // Incorrect
+  const double = x => {
+    return x * 2;
+  };
+  ```
+
+- **Ternary operators**: Nested ternary operators are forbidden.
+  ```js
+  // Correct
+  const result = condition ? valueA : valueB;
+  
+  // Incorrect
+  const result = conditionA ? valueA : conditionB ? valueB : valueC;
+  ```
+
+- **Destructuring**: Rename non-standard names.
+  ```js
+  // Correct
+  const { user_id: userId, created_at: createdAt } = response;
+  
+  // Incorrect
+  const { user_id, created_at } = response;
+  ```
+
+## 2. TypeScript (in addition to JavaScript rules)
+
+### Type Naming
+
+- **Interfaces**: `PascalCase` **without** the `I` prefix.
+  ```ts
+  // Correct
+  interface UserData { /* ... */ }
+  
+  // Incorrect
+  interface IUserData { /* ... */ }
+  ```
+
+- **Types**: `PascalCase` **without** the `T` prefix.
+  ```ts
+  // Correct
+  type UserId = string | number;
+  
+  // Incorrect
+  type TUserId = string | number;
+  ```
+
+- **Generics**: `PascalCase`, use descriptive names.
+  ```ts
+  // Correct
+  const getItem = <ItemType,>(id: string): ItemType => { /* ... */ };
+  ```
+
+- **Enums**: `PascalCase` for the name, `UPPER_CASE` for members. Prefer `const enum` for better performance as it inlines values at compile time.
+  ```ts
+  const enum HttpStatus {
+    OK = 200,
+    NOT_FOUND = 404,
+    INTERNAL_ERROR = 500
+  }
+  ```
+
+### Typing
+
+- **Explicit return types**: Required for public API functions.
+  ```ts
+  // Function in a public API
+  const getUserData = (id: string): UserData => { /* ... */ };
+  
+  // Optional for internal functions or when the type is obvious
+  const double = (x: number) => x * 2;
+  ```
+
+- **Using @ts-ignore**: Only with an explanatory comment.
+  ```ts
+  // @ts-ignore: This library has an incorrect type definition, will be fixed in task ABC-123
+  const result = someLibrary.problematicMethod();
+  ```
+
+- **Union types with null/undefined**: Use for boolean properties.
+  ```ts
+  interface FormState {
+    isValid: boolean;
+    isSubmitting?: boolean | null; // Optional property
+    hasErrors?: boolean;  // Optional property
+  }
+  ```
+  
+- **Component Types**: For typing functional components, always use the full `FunctionComponent` name from React. Avoid abbreviations like `FC` or `React.FC`.
+  ```tsx
+  // Correct
+  const MyComponent: FunctionComponent<MyProps> = (props) => { /* ... */ };
+
+  // Incorrect
+  const MyComponent: FC<MyProps> = (props) => { /* ... */ };
+  const MyComponent: React.FC<MyProps> = (props) => { /* ... */ };
+  ```
+
+## 3. JSX/React (in addition to JavaScript and TypeScript rules)
+
+### Component Naming
+
+- **Components**: `PascalCase`
+  ```tsx
+  // Functional component
+  const UserProfile = () => { /* ... */ };
+  
+  // Class component
+  const Button = (props: ButtonProps) => { /* ... */ };
+  ```
+
+- **Props interfaces**: `PascalCase` with a `Props` suffix. **Must** be an `interface`, not a `type`, unless features of `type` are strictly necessary. The name should be descriptive (e.g., `ButtonProps`) only if the interface is exported. For internal component props, a simple `Props` is sufficient.
+  ```tsx
+  interface ButtonProps {
+    label: string;
+    onClick: () => void;
+    isDisabled?: boolean;
+  }
+  
+  function Button(props: ButtonProps) { /* ... */ }
+  ```
+
+- **Boolean props**: Name boolean props like standard HTML attributes (e.g. `disabled`, `checked`). When destructuring props inside a component, they **must** be renamed to include a prefix such as `is`, `has`, `should`, or `can`.
+  ```tsx
+  // Correct: Prop name is 'disabled', like in HTML.
+  <CustomInput disabled={true} />
+
+  // Correct: Inside the component, 'disabled' is renamed to 'isDisabled'.
+  const CustomInput = ({ disabled: isDisabled, ...otherProps }) => {
+    // use 'isDisabled' variable internally
+  }
+
+  // Incorrect: The prop itself should not have a prefix.
+  <CustomInput isDisabled={true} />
+  ```
+
+### JSX Structure
+
+- **Conditional rendering**: Use ternary operators, not `&&`.
+  ```tsx
+  // Correct
+  {isLoggedIn ? <UserProfile /> : null}
+  
+  // Incorrect - can render 0 or other falsy values
+  {isLoggedIn && <UserProfile />}
+  ```
+
+- **Event handling**: Use `handle` prefix for handlers and `on` for props.
+  ```tsx
+  const Component = () => {
+    // Internal handler starts with handle
+    const handleClick = () => { /* ... */ };
+    
+    return <Button onClick={handleClick} />;  // Prop starts with on
+  }
+  ```
+
+- **Destructuring props**: Preferred, especially for boolean props.
+  ```tsx
+  // Preferred
+  const UserCard = ({ name, age, active: isActive }) => {
+    return /* ... */;
+  }
+  
+  // Instead of
+  const UserCard = (props) => {
+    const { name, age, active: isActive } = props;
+    return /* ... */;
+  }
+  ```

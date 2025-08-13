@@ -1,0 +1,51 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# How to Add a New Page
+
+To add a new page to the application, follow these three steps. We'll use a "User Profile" page as an example.
+
+### Step 1: Create the Page Slice
+
+Following the FSD and `camelCase` naming conventions:
+
+1.  Create a new directory (slice) inside `src/pages/`. Example: `src/pages/userProfile`.
+2.  Inside the new slice, create a `ui/` directory containing the page component. Example: `src/pages/userProfile/ui/UserProfilePage.tsx`.
+    -   The page component should compose UI and logic from lower layers (`widgets`, `features`, `entities`).
+3.  Create a public API file for the slice at `src/pages/userProfile/index.ts`.
+4.  Export the page component from the public API file:
+    ```typescript
+    export { UserProfilePage } from './ui/UserProfilePage';
+    ```
+
+### Step 2: Define the Route Path
+
+1.  Open the shared routes configuration file: [src/shared/config/routes.ts](mdc:src/shared/config/routes.ts).
+2.  Add a new entry to the `AppRoute` enum for the new page:
+    ```typescript
+    enum AppRoute {
+        // ... existing routes
+        PROFILE = '/profile',
+    }
+    ```
+
+### Step 3: Register the Page in the Router
+
+1.  Open the main application router: [src/app/router/AppRouter.tsx](mdc:src/app/router/AppRouter.tsx).
+2.  Import the new page component from its public API:
+    ```typescript
+    import { UserProfilePage } from '@/pages/userProfile';
+    ```
+3.  Add a new route description object to the `routes` configuration array:
+    ```typescript
+    const routes: RouteDescription[] = [
+        // ... existing route objects
+        {
+            path: AppRoute.PROFILE,
+            component: UserProfilePage,
+            layout: DefaultLayout // or another layout
+        }
+    ];
+    ```

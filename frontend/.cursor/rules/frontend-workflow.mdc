@@ -1,0 +1,26 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Frontend Development Workflow
+
+## 1. Dependency Management
+
+-   **Exact Versions:** All dependencies are installed with exact versions (`--save-exact=true`), as configured in the project's `.npmrc` file.
+-   **`dependencies` vs `devDependencies`:** The distinction is based on the [src/frontend/docker/Dockerfile](mdc:src/frontend/docker/Dockerfile).
+    -   **`dependencies`:** Any package required for the CI/CD pipeline (building, linting, testing). This includes `eslint`, `stylelint`, `vitest`, and their related plugins.
+    -   **`devDependencies`:** Packages used only for local development and not required by the build pipeline. Examples include `@types/node`, `prettier`, and `lint-staged`.
+
+## 2. Code Quality
+
+-   **TypeScript Errors:** All TypeScript errors reported by `tsc` **must be fixed immediately.** They are considered critical.
+-   **ESLint Rules:**
+    -   **Import Rules:** FSD-related import rules are critical for maintaining the architecture. They must never be ignored.
+    -   **Other Warnings:** Other stylistic warnings can be addressed later, after the main functionality is working.
+
+## 3. Testing
+
+-   **Scope:** You should propose writing unit tests for **all utility functions**, regardless of their location. This includes helpers in `shared` and any other reusable logic.
+-   **Permission:** You **must** ask for the user's permission before writing any test.
+-   **Vite Mode:** Note that for running tests, the Vite mode is named `vitest`, not `test`, to avoid conflicts with the "test" environment stand. This is configured in `package.json` scripts and `vite.config.ts`.

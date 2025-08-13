@@ -1,0 +1,104 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Redux Toolkit & RTK Query Usage Guide
+
+This document outlines the rules and best practices for managing state using Redux Toolkit within this project.
+
+## 1. Core Principle: Server vs. Client State
+
+A strict separation must be maintained between server state (data fetched from the API) and client state (UI-related state).
+
+-   **Server State:** Managed **exclusively** by **RTK Query**.
+-   **Client State:** Managed by `createSlice` for UI-specific data (e.g., theme toggles, modal visibility, form state).
+
+## 2. RTK Query for API Interaction
+
+All interactions with the backend API **must** be handled through RTK Query.
+
+### 2.1. Using the Custom `baseQuery`
+
+To ensure all API requests go through our custom-configured `appAPIClient` (which handles logging, auth, etc.), you **must** use the custom `baseQuery` when creating an API slice.
+
+**Do not** use the default `fetchBaseQuery`.
+
+```typescript
+// src/entities/some-entity/api/someEntityApi.ts
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { appAPIBaseQuery } from 'shared/api/app/appAPIBaseQuery'; // <-- IMPORTANT
+
+export const someEntityApi = createApi({
+  reducerPath: 'api/someEntity', // Unique reducer path
+  baseQuery: appAPIBaseQuery, // <-- Use our custom baseQuery
+  endpoints: (builder) => ({
+    // ... define your endpoints here
+  }),
+});
+```
+
+### 2.2. File Structure
+
+API slices **must** be located within the `api` directory of the corresponding FSD entity or feature.
+
+-   **Correct:** `src/entities/user/api/userApi.ts`
+-   **Correct:** `src/features/auth/by-password/api/authApi.ts`
+-   **Incorrect:** `src/app/api/user.ts`
+
+### 2.3. Tagging and Invalidation
+
+To ensure automatic data refetching and cache management, you **must** use the `tags` system provided by RTK Query.
+
+-   Define `providesTags` for all query endpoints.
+-   Define `invalidatesTags` for all mutation endpoints.
+
+This is critical for keeping the client state in sync with the server after data changes.
+
+## 3. `createSlice` for Client State
+
+Use `createSlice` only for state that is local to the client application and is not persisted on the server.
+
+-   **Examples:** UI theme, open/closed state of modals, complex form data.
+-   **Location:** Place client state slices within the relevant feature or widget slice, e.g., `src/features/theme-switcher/model/slice.ts`.
+
+## 4. Selectors
+
+For accessing data from the store, especially in components, you **must** use selectors.
+
+-   **For API state:** Use the auto-generated hooks from your API slice (`useSomeQueryQuery`).
+-   **For client state:** Create selectors for the slice state.
+-   **For computed/derived state:** Use `createSelector` from the `reselect` library (re-exported from `@reduxjs/toolkit`) to create memoized selectors. This prevents unnecessary re-renders.
+
+```typescript
+// Example of a memoized selector
+import { createSelector } from '@reduxjs/toolkit';
+
+const selectSomeItems = (state: RootState) => state.some.items;
+const selectFilter = (state: RootState) => state.some.filter;
+
+export const selectVisibleItems = createSelector(
+  [selectSomeItems, selectFilter],
+  (items, filter) => {
+    // ... filtering logic
+    return items.filter(item => item.name.includes(filter));
+  }
+);
+```
+
+## 5. RTK Query Refetch Policy
+
+By default, RTK Query automatically refetches data when the browser tab regains focus (`refetchOnFocus`) or when the network connection is restored (`refetchOnReconnect`). **In this project, these behaviors are disabled** for a more predictable user experience.
+
+When creating API slices, you **must** include the following configuration:
+
+```typescript
+export const someApi = createApi({
+  // ... other config
+  refetchOnFocus: false,
+  refetchOnReconnect: false,
+  // ... endpoints
+});
+```
+
+**Rationale:** Automatic refetching can be disruptive to users who are in the middle of filling forms, reading content, or performing other tasks. Data should be refetched explicitly when needed, not automatically based on browser events.

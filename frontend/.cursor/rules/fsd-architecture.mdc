@@ -1,0 +1,78 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Feature-Sliced Design (FSD) Architecture
+
+This project is built on the **Feature-Sliced Design (FSD) v2.1** methodology. Adherence to these principles is enforced by our ESLint configuration.
+
+> **Note:** If you need more details on the FSD methodology, you can use your documentation retrieval tools (like `context7`) to query for `feature-sliced design`.
+
+## 1. Layers
+
+The codebase is organized into the following layers, from top to bottom:
+
+-   `app`: Application-wide setup, styles, and providers.
+-   `pages`: Application pages, composed of widgets, features, and entities.
+-   `widgets`: Compositions of features and entities, representing large, independent UI blocks (e.g., Header, Sidebar).
+-   `features`: Business-logic features that a user can interact with (e.g., `auth-by-email`, `send-comment`).
+-   `entities`: Business entities that are used across different features (e.g., `user`, `post`, `comment`).
+-   `shared`: Reusable, cross-cutting code that has no business logic (e.g., UI kit, API helpers, configs).
+
+## 2. Layer Import Rules
+
+**The most important rule:** A layer can only import from layers that are **strictly below** it.
+
+-   `pages` can import from `widgets`, `features`, `entities`, `shared`.
+-   `features` can import from `entities`, `shared`.
+-   `shared` cannot import from any other layer.
+
+**This is enforced by ESLint.** See the `import/no-restricted-paths` rule in [src/frontend/.eslintrc.json](mdc:Root/Frontend/.eslintrc.json) for the exact implementation.
+
+## 3. Slices and Public API
+
+-   Each layer (except `app` and `shared`) is divided into **slices**. A slice is a folder that groups code by business domain (e.g., `entities/user`).
+-   Slices must not import from each other directly within the same layer.
+-   Each slice must have a public API file (`index.ts` or `index.tsx`) that exports only the code intended for external use.
+-   **Always import from the public API of a slice**, not directly from its internal files. Deep imports like `features/auth/ui/button.tsx` are forbidden by ESLint.
+
+## 4. Naming Conventions
+
+- **All directories and files (slices, segments, components) must use `camelCase`.**
+- `kebab-case` is not allowed anywhere in the file structure.
+- **Component folders within segments must also use `camelCase`.**
+
+**Examples:**
+- **Correct:** `src/pages/userProfile`, `src/features/authByEmail`, `src/widgets/appHeader`, `src/shared/ui/components/userCard`
+- **Incorrect:** `src/pages/user-profile`, `src/features/auth-by-email`, `src/widgets/AppHeader`, `src/shared/ui/components/UserCard`
+
+**Component naming within folders:**
+- **Folder:** `appHeader` (camelCase)
+- **Component file:** `AppHeader.tsx` (PascalCase)
+- **Index file:** `index.ts` (lowercase)
+
+## 5. Project-Specific Conventions
+
+These are specific rules for our project that you must follow:
+
+### User Entity is `viewer`
+
+-   When working with the currently authenticated user's data, state, or components, use the **`entities/viewer`** slice.
+
+### API Entities
+
+-   **When adding logic for a new backend API endpoint, always create a corresponding business entity in the `src/entities` layer.**
+-   This is a conscious decision for our project to keep all API-related business models centralized in the `entities` layer, even if they are only used on a single page.
+
+### 6. The "Pages First" Principle (FSD v2.1)
+
+In line with the evolution of Feature-Sliced Design to version 2.1, this project adopts the **"Pages First"** principle of decomposition.
+
+-   **Colocation over Premature Abstraction:** Logic, UI components, and data fetching specific to a single page **must** remain within that page's slice. Do not create a separate `feature` or `widget` for functionality that is not reused elsewhere.
+-   **Why?** This approach significantly improves code **cohesion**, making user flows easier to trace and modify. It also simplifies the deletion of unused features, as all related code is located in one place.
+-   **When to Extract?** A `feature` or `widget` should only be created when you have a clear, immediate need to reuse that functionality across multiple pages or widgets.
+
+This approach is based on the official FSD v2.1 guidelines, which aim to make the architecture more intuitive and less prone to over-engineering.
+
+*Reference: [FSD v2.1 Release Notes](mdc:Root/Root/https:/github.com/feature-sliced/documentation/releases/tag/v2.1)*

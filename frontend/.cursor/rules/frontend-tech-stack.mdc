@@ -1,0 +1,61 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Core libraries, utilities, and architectural conventions for the frontend."
+alwaysApply: true
+---
+# Frontend Tech Stack & Conventions
+
+This document outlines the core libraries, utilities, and architectural conventions used in the [`src/frontend`](mdc:src/frontend) part of the project.
+
+## 1. Core Libraries
+
+-   **Framework:** React (`react`, `react-dom`)
+-   **State Management:** Redux Toolkit (`@reduxjs/toolkit`, `react-redux`). Follow standard Redux patterns for actions, reducers, and selectors.
+-   **Routing:** `wouter`. A minimalistic router. Use the custom hooks in [`src/shared/lib/wouter`](mdc:src/frontend/src/shared/lib/wouter) for navigation and accessing query parameters.
+-   **Styling:** SCSS (`sass`) with CSS Modules. Use `clsx` for conditional class name construction.
+
+## 2. Key Utility Libraries
+
+-   **General Purpose:** `es-toolkit` and `lodash-es`. Prefer `es-toolkit` for modern, tree-shakable utilities.
+-   **React Hooks:** `react-use` provides a rich collection of essential hooks. Check this library before writing a custom hook.
+-   **Events:** `nanoevents` is used for a simple and lightweight event emitter pattern.
+
+## 3. Internal Libraries & Abstractions (`src/shared/lib`)
+
+The [`src/shared/lib`](mdc:src/frontend/src/shared/lib) directory contains custom-built, reusable solutions.
+
+-   **API Client (`lib/api`):**
+    -   The primary API client is `appAPIClient` located in [`src/shared/api/app/appAPIClient.ts`](mdc:src/frontend/src/shared/api/app/appAPIClient.ts).
+    -   It is created by the `createRequester` factory ([`lib/api/createRequester.ts`](mdc:src/frontend/src/shared/lib/api/createRequester.ts)).
+    -   This client handles `fetch` requests, timeouts, JSON parsing, and error handling.
+    -   It uses `@37bytes/smart-url-search-params` for query string serialization.
+    -   API types are generated automatically from a Swagger schema using `swagger-typescript-api`. Do not manually edit the [`dto.ts`](mdc:src/frontend/src/shared/api/app/dto.ts) file.
+
+-   **Logger (`lib/logger`):**
+    -   Use the `createLogger` factory to create named logger instances.
+    -   The logger is an abstraction over `@37bytes/logstory`.
+    -   It is integrated with Sentry. Use `logger.warn.withSentry(message)` and `logger.error.withSentry(error)` to send reports to Sentry.
+
+-   **Sentry (`lib/sentry`):**
+    -   Contains the configuration and wrapper for Sentry error reporting.
+
+-   **Component Helpers (`lib/react`):**
+    -   `combineProviders`: A utility to neatly nest multiple React Context providers.
+
+-   **Routing Helpers (`lib/wouter`):**
+    -   `useNavigate`: A custom hook for programmatic navigation.
+    -   `useQueryParameter`: A hook to easily read and write URL query parameters.
+
+## 4. Build & Environment
+
+-   **Build Tool:** Vite. The main configuration is in [`vite/vite.config.ts`](mdc:src/frontend/vite/vite.config.ts).
+-   **Environment Variables:** The project uses a custom system for managing environment variables, located in [`environments/`](mdc:src/frontend/environments) and integrated via Vite plugins.
+-   **Testing:** `vitest` is used for unit and integration tests. Test files are located alongside the source files.
+
+## 5. Document Maintenance
+
+This document is a living guide. If you introduce a new library, change a core architectural pattern, or add a significant abstraction, you **must** update this file to reflect the changes.
