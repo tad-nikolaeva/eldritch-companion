@@ -5,9 +5,9 @@
   ],
   "framework": "vite",
   "env": {
-    "VITE_SUPABASE_URL": "@supabase_url",
-    "VITE_SUPABASE_ANON_KEY": "@supabase_anon_key",
-    "VITE_DASHBOARD_STATS_URL": "@dashboard_stats_url"
+    "VITE_SUPABASE_URL": "@SUPABASE_URL",
+    "VITE_SUPABASE_ANON_KEY": "@SUPABASE_ANON_KEY",
+    "VITE_DASHBOARD_STATS_URL": "@DASHBOARD_STATS_URL"
   }
 }
 
