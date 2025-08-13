@@ -17,14 +17,7 @@ services:
     networks:
       - cthulhu_network
 
-  redis:
-    image: redis:7-alpine
-    container_name: cthulhu_redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    networks:
-      - cthulhu_network
+  # redis: отключен до появления реального использования
 
 volumes:
   postgres_data:

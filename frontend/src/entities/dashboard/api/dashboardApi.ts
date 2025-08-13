@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { appAPIBaseQuery } from '@/shared/api/app/appAPIBaseQuery'
+import { isSupabaseEnabled } from '@/shared/api/supabaseClient'
 
 interface DashboardStats {
   charactersCount: number
@@ -16,10 +17,19 @@ export const dashboardApi = createApi({
   tagTypes: ['DashboardStats'],
   endpoints: (builder) => ({
     getDashboardStats: builder.query<DashboardStats, void>({
-      query: () => ({
-        url: '/api/dashboard/stats',
-        method: 'GET',
-      }),
+      query: () => {
+        if (isSupabaseEnabled) {
+          const edgeUrl = import.meta.env.VITE_DASHBOARD_STATS_URL
+          return {
+            url: edgeUrl || '/api/dashboard/stats',
+            method: 'GET',
+          }
+        }
+        return {
+          url: '/api/dashboard/stats',
+          method: 'GET',
+        }
+      },
       providesTags: ['DashboardStats'],
     }),
   }),

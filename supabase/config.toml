@@ -1,0 +1,16 @@
+# Supabase local project configuration
+
+[project]
+id = "local"
+name = "eldritch-companion"
+backend = "postgres"
+
+[db]
+schema = "public,storage,graphql_public,extensions"
+
+[functions]
+# Edge Functions config placeholders. Real values are managed by Supabase platform.
+# These placeholders allow local development.
+jwt_secret = "change-me-in-supabase"
+
+

@@ -19,7 +19,13 @@
     "lint": "pnpm --filter backend lint && pnpm --filter frontend lint",
     "db:up": "docker-compose up -d postgres",
     "db:down": "docker-compose down",
-    "clean": "pnpm --filter backend clean && pnpm --filter frontend clean"
+    "clean": "pnpm --filter backend clean && pnpm --filter frontend clean",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:push": "supabase db push",
+    "supabase:reset": "supabase db reset",
+    "vercel:dev": "cd frontend && vercel dev",
+    "vercel:deploy": "cd frontend && vercel deploy --prod"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

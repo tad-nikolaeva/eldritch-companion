@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useLocation } from 'wouter'
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/shared/ui'
+import { supabase, isSupabaseEnabled } from '@/shared/api/supabaseClient'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -32,22 +33,19 @@ export function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:3001/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+      if (!isSupabaseEnabled || !supabase) {
+        toast.error('Supabase не настроен')
+        return
+      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
       })
-
-      if (response.ok) {
-        const result = await response.json()
-        localStorage.setItem('authToken', result.access_token)
+      if (error) {
+        toast.error(error.message)
+      } else {
         toast.success('Вход выполнен успешно!')
         setLocation('/')
-      } else {
-        const error = await response.json()
-        toast.error(error.message || 'Ошибка входа')
       }
     } catch (error) {
       toast.error('Ошибка подключения к серверу')

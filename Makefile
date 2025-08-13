@@ -89,3 +89,23 @@ quick-start: ## Быстрый старт (установка + запуск Б�
 	@echo "✅ Готово! Запускаем dev сервер..."
 	@echo "Для запуска frontend выполните: make frontend-dev"
 	@make dev 
+
+# --- Supabase / Vercel helpers ---
+
+supabase-up: ## Запустить локальный Supabase (Docker)
+	@supabase start
+
+supabase-down: ## Остановить локальный Supabase
+	@supabase stop
+
+supabase-push: ## Применить миграции Supabase к локальной БД
+	@supabase db push
+
+supabase-reset: ## Сбросить локальную БД Supabase и применить миграции/сид
+	@supabase db reset
+
+vercel-dev: ## Запустить Vercel dev для фронтенда
+	cd frontend && vercel dev
+
+vercel-deploy: ## Деплой фронтенда на Vercel (prod)
+	cd frontend && vercel deploy --prod

@@ -1,13 +1,18 @@
 'use client'
 
 import { Button } from '@/shared/ui'
+import { supabase, isSupabaseEnabled } from '@/shared/api/supabaseClient'
 import { useLocation } from 'wouter'
 
 export function Header() {
   const [, setLocation] = useLocation()
 
-  const handleLogout = () => {
-    localStorage.removeItem('authToken')
+  const handleLogout = async () => {
+    if (isSupabaseEnabled && supabase) {
+      await supabase.auth.signOut()
+    } else {
+      localStorage.removeItem('authToken')
+    }
     setLocation('/login')
   }
 

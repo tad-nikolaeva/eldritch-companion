@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useLocation } from 'wouter'
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/shared/ui'
+import { supabase, isSupabaseEnabled } from '@/shared/api/supabaseClient'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -40,28 +41,26 @@ export function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:3001/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      if (!isSupabaseEnabled || !supabase) {
+        toast.error('Supabase не настроен')
+        return
+      }
+      const { error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            username: data.username,
+            firstName: data.firstName,
+            lastName: data.lastName,
+          },
         },
-        body: JSON.stringify({
-          email: data.email,
-          username: data.username,
-          password: data.password,
-          firstName: data.firstName,
-          lastName: data.lastName,
-        }),
       })
-
-      if (response.ok) {
-        const result = await response.json()
-        localStorage.setItem('authToken', result.access_token)
-        toast.success('Регистрация выполнена успешно!')
-        setLocation('/')
+      if (error) {
+        toast.error(error.message)
       } else {
-        const error = await response.json()
-        toast.error(error.message || 'Ошибка регистрации')
+        toast.success('Регистрация выполнена! Проверьте почту для подтверждения (если включено).')
+        setLocation('/')
       }
     } catch (error) {
       toast.error('Ошибка подключения к серверу')

@@ -1,19 +1,37 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '@/shared/api/client'
 import Cookies from 'js-cookie'
 import type { ViewerProfile, AuthResponse } from '../types/types'
+import { supabase, isSupabaseEnabled } from '@/shared/api/supabaseClient'
 
 export function useLogin() {
   const queryClient = useQueryClient()
   
   return useMutation({
     mutationFn: async (data: { email: string; password: string }): Promise<AuthResponse> => {
-      const response = await apiClient.post('/auth/login', data)
-      return response.data
+      if (isSupabaseEnabled && supabase) {
+        const { data: sessionData, error } = await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        })
+        if (error) {
+          throw error
+        }
+        const user = sessionData.user
+        return {
+          access_token: sessionData.session?.access_token || '',
+          user: {
+            id: user?.id || '',
+            email: user?.email || '',
+            username: user?.user_metadata?.username || '',
+            createdAt: user?.created_at || '',
+            updatedAt: user?.updated_at || user?.created_at || '',
+          },
+        }
+      }
+      throw new Error('Supabase не настроен')
     },
     onSuccess: (data) => {
-      // Сохраняем токен в cookies
-      Cookies.set('access_token', data.access_token, { expires: 7 })
+      // При Supabase токен хранится SDK, куки не нужны
       // Обновляем кеш пользователя
       queryClient.setQueryData(['viewer'], data.user)
     },
@@ -25,12 +43,31 @@ export function useRegister() {
   
   return useMutation({
     mutationFn: async (data: { email: string; username: string; password: string }): Promise<AuthResponse> => {
-      const response = await apiClient.post('/auth/register', data)
-      return response.data
+      if (isSupabaseEnabled && supabase) {
+        const { data: signUpData, error } = await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+          options: { data: { username: data.username } },
+        })
+        if (error) {
+          throw error
+        }
+        const user = signUpData.user
+        return {
+          access_token: signUpData.session?.access_token || '',
+          user: {
+            id: user?.id || '',
+            email: user?.email || '',
+            username: user?.user_metadata?.username || '',
+            createdAt: user?.created_at || '',
+            updatedAt: user?.updated_at || user?.created_at || '',
+          },
+        }
+      }
+      throw new Error('Supabase не настроен')
     },
     onSuccess: (data) => {
-      // Сохраняем токен в cookies
-      Cookies.set('access_token', data.access_token, { expires: 7 })
+      // При Supabase токен хранится SDK, куки не нужны
       // Обновляем кеш пользователя
       queryClient.setQueryData(['viewer'], data.user)
     },
@@ -42,12 +79,14 @@ export function useLogout() {
   
   return useMutation({
     mutationFn: async () => {
-      // В будущем здесь может быть вызов API для logout
-      return Promise.resolve()
+      if (isSupabaseEnabled && supabase) {
+        await supabase.auth.signOut()
+        return
+      }
+      throw new Error('Supabase не настроен')
     },
     onSuccess: () => {
-      // Удаляем токен из cookies
-      Cookies.remove('access_token')
+      // При Supabase токен хранится SDK, куки не нужны
       // Очищаем кеш
       queryClient.clear()
     },
@@ -55,13 +94,27 @@ export function useLogout() {
 }
 
 export function useViewer() {
-  return useQuery<ViewerProfile>({
+  return useQuery<ViewerProfile | undefined>({
     queryKey: ['viewer'],
     queryFn: async () => {
-      const response = await apiClient.get('/auth/me')
-      return response.data
+      if (isSupabaseEnabled && supabase) {
+        const { data } = await supabase.auth.getUser()
+        const user = data.user
+        if (!user) {
+          return undefined
+        }
+        return {
+          id: user?.id || '',
+          email: user?.email || '',
+          username: user?.user_metadata?.username || '',
+          createdAt: user?.created_at || '',
+          updatedAt: user?.updated_at || user?.created_at || '',
+        }
+      }
+      // При Supabase режимах — без бэкенда auth/me
+      return undefined
     },
-    enabled: !!Cookies.get('access_token'),
+    enabled: isSupabaseEnabled ? true : !!Cookies.get('access_token'),
   })
 }
 

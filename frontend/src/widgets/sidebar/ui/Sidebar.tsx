@@ -2,12 +2,7 @@
 
 import { useLocation } from 'wouter'
 import { 
-  Home, 
-  Users, 
-  Gamepad2, 
-  Settings, 
-  BookOpen,
-  User
+  Home
 } from 'lucide-react'
 
 export function Sidebar() {
@@ -15,11 +10,7 @@ export function Sidebar() {
 
   const menuItems = [
     { icon: Home, label: 'Дашборд', path: '/' },
-    { icon: Users, label: 'Персонажи', path: '/characters' },
-    { icon: Gamepad2, label: 'Сессии', path: '/sessions' },
-    { icon: BookOpen, label: 'Сценарии', path: '/scenarios' },
-    { icon: User, label: 'Профиль', path: '/profile' },
-    { icon: Settings, label: 'Настройки', path: '/settings' },
+    // Остальные пункты появятся после реализации страниц
   ]
 
   return (
