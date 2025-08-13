@@ -1,69 +1,189 @@
-# React + TypeScript + Vite
+# 🐙 Cthulhu Web Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Минимально рабочая версия фронтенда для приложения-компаньона Call of Cthulhu RPG.
 
-Currently, two official plugins are available:
+## 🚀 Быстрый старт
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 1. Установка зависимостей
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Настройка переменных окружения
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Создайте файл `.env` в корне frontend директории:
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_API_URL=http://localhost:3001
 ```
+
+### 3. Запуск в режиме разработки
+
+```bash
+pnpm run dev
+```
+
+Фронтенд будет доступен на http://localhost:3000
+
+### 4. Сборка для продакшна
+
+```bash
+pnpm run build
+```
+
+## 📋 Доступные команды
+
+- `pnpm run dev` - Запуск в режиме разработки
+- `pnpm run build` - Сборка для продакшна
+- `pnpm run preview` - Предварительный просмотр собранного приложения
+- `pnpm run lint` - Запуск линтера
+- `pnpm run typecheck` - Проверка типов TypeScript
+
+## 🏗️ Архитектура
+
+Проект построен на основе **Feature-Sliced Design (FSD) v2.1**:
+
+### Слои (сверху вниз):
+
+- **`pages`** - Страницы приложения
+- **`widgets`** - Композиции features и entities
+- **`features`** - Бизнес-логика, с которой может взаимодействовать пользователь
+- **`entities`** - Бизнес-сущности
+- **`shared`** - Переиспользуемый код без бизнес-логики
+
+### Основные страницы:
+
+- **`/`** - Дашборд (требует аутентификации)
+- **`/login`** - Страница входа
+- **`/register`** - Страница регистрации
+
+### Виджеты:
+
+- **`Header`** - Верхняя панель навигации
+- **`Sidebar`** - Боковое меню
+- **`Dashboard`** - Основной дашборд
+
+## 🎨 UI Компоненты
+
+### Доступные компоненты:
+
+- **`Button`** - Кнопка с различными вариантами
+- **`Card`** - Карточка с заголовком и содержимым
+- **`Badge`** - Бейдж для отображения статуса
+- **`Layout`** - Общий макет страницы
+
+### Стилизация:
+
+- **Tailwind CSS** - Utility-first CSS фреймворк
+- **CSS Modules** - Локальная область видимости стилей
+- **SCSS** - Препроцессор CSS
+
+## 🔐 Аутентификация
+
+### Система аутентификации:
+
+- JWT токены хранятся в `localStorage`
+- Автоматическая проверка токена при загрузке
+- Редирект на страницу входа для неавторизованных пользователей
+
+### Тестовые аккаунты:
+
+- **Admin:** admin@cthulhu-web.dev / admin123
+- **User:** test@example.com / password123
+
+## 📡 API Интеграция
+
+### RTK Query:
+
+- Автоматическое кеширование данных
+- Оптимистичные обновления
+- Автоматическая инвалидация кеша
+
+### Основные API:
+
+- **Dashboard API** - Статистика дашборда
+- **Auth API** - Аутентификация и регистрация
+
+## 🛠️ Технологии
+
+### Основные:
+
+- **React 19** - UI библиотека
+- **TypeScript** - Типизированный JavaScript
+- **Vite** - Сборщик и dev сервер
+- **Wouter** - Минималистичный роутер
+
+### State Management:
+
+- **Redux Toolkit** - Управление состоянием
+- **RTK Query** - Управление серверным состоянием
+
+### Формы:
+
+- **React Hook Form** - Управление формами
+- **Zod** - Валидация схем
+- **@hookform/resolvers** - Интеграция React Hook Form с Zod
+
+### UI библиотеки:
+
+- **Radix UI** - Примитивы для доступных компонентов
+- **Lucide React** - Иконки
+- **React Hot Toast** - Уведомления
+
+## 🔧 Конфигурация
+
+### Vite:
+
+- Прокси для API запросов на `/api` → `http://localhost:3001`
+- Алиас `@` для `src/` директории
+- Hot Module Replacement (HMR)
+
+### Tailwind CSS:
+
+- Кастомные CSS переменные для цветов
+- Поддержка темной темы
+- Анимации и переходы
+
+## 📱 Адаптивность
+
+- Мобильная адаптация
+- Responsive дизайн
+- Адаптивная сетка
+
+## 🚨 Устранение неполадок
+
+### Ошибки сборки:
+
+1. **TypeScript ошибки:** `pnpm run typecheck`
+2. **ESLint ошибки:** `pnpm run lint`
+3. **Проблемы с зависимостями:** `pnpm install`
+
+### Проблемы с API:
+
+1. Убедитесь, что бэкенд запущен на порту 3001
+2. Проверьте переменную `VITE_API_URL` в `.env`
+3. Проверьте CORS настройки бэкенда
+
+### Проблемы с Tailwind:
+
+1. Перезапустите dev сервер
+2. Проверьте конфигурацию `tailwind.config.js`
+3. Убедитесь, что CSS файлы импортируются
+
+## 🎯 Следующие шаги
+
+- [ ] Добавить страницы для персонажей и сессий
+- [ ] Реализовать полноценную навигацию
+- [ ] Добавить темную тему
+- [ ] Настроить тесты
+- [ ] Добавить PWA функциональность
+- [ ] Оптимизировать производительность
+
+## 📚 Документация
+
+- [Feature-Sliced Design](https://feature-sliced.design/)
+- [React Hook Form](https://react-hook-form.com/)
+- [Zod](https://zod.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Radix UI](https://www.radix-ui.com/)

@@ -1,5 +1,10 @@
 import { Dashboard } from '@/widgets/dashboard'
+import { Layout } from '@/shared/ui'
 
 export function DashboardPage() {
-  return <Dashboard />
+  return (
+    <Layout>
+      <Dashboard />
+    </Layout>
+  )
 } 

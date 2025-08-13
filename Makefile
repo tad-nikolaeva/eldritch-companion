@@ -1,4 +1,4 @@
-.PHONY: help install dev build start db-up db-down migrate seed clean test typecheck lint
+.PHONY: help install dev build start db-up db-down migrate seed clean test typecheck lint frontend-dev frontend-build
 
 help: ## Показать все доступные команды
 	@echo "🐙 Cthulhu Web - Доступные команды:"
@@ -9,13 +9,31 @@ install: ## Установить зависимости
 	@echo "📦 Установка зависимостей..."
 	pnpm install
 
-dev: ## Запустить development сервера
+dev: ## Запустить development сервера (только backend)
 	@echo "🚀 Запуск development сервера..."
 	@./start-backend.sh
+
+frontend-dev: ## Запустить frontend в режиме разработки
+	@echo "🎨 Запуск frontend..."
+	cd frontend && pnpm run dev
+
+frontend-build: ## Собрать frontend
+	@echo "🔨 Сборка frontend..."
+	cd frontend && pnpm run build
+
+full-dev: ## Запустить backend + frontend (в разных терминалах)
+	@echo "🚀 Запуск полного стека..."
+	@echo "Backend будет запущен в текущем терминале"
+	@echo "Frontend будет запущен в новом терминале"
+	@echo ""
+	@echo "Для запуска frontend выполните: make frontend-dev"
+	@echo ""
+	@make dev
 
 build: ## Собрать проект
 	@echo "🔨 Сборка проекта..."
 	pnpm --filter backend build
+	@make frontend-build
 
 start: ## Запустить production сервер
 	@echo "🚀 Запуск production сервера..."
@@ -45,6 +63,8 @@ clean: ## Очистить build файлы
 	@echo "🧹 Очистка build файлов..."
 	cd backend && pnpm run clean
 	rm -rf backend/dist
+	cd frontend && pnpm run clean
+	rm -rf frontend/dist
 
 test: ## Запустить тесты
 	@echo "🧪 Запуск тестов..."
@@ -53,10 +73,12 @@ test: ## Запустить тесты
 typecheck: ## Проверить типы TypeScript
 	@echo "🔍 Проверка типов TypeScript..."
 	pnpm --filter backend typecheck
+	pnpm --filter frontend typecheck
 
 lint: ## Запустить линтер
 	@echo "🔍 Запуск линтера..."
 	pnpm --filter backend lint
+	pnpm --filter frontend lint
 
 quick-start: ## Быстрый старт (установка + запуск БД + миграции + dev сервер)
 	@echo "🚀 Быстрый старт Cthulhu Web..."
@@ -65,4 +87,5 @@ quick-start: ## Быстрый старт (установка + запуск Б�
 	@sleep 5
 	@make migrate
 	@echo "✅ Готово! Запускаем dev сервер..."
+	@echo "Для запуска frontend выполните: make frontend-dev"
 	@make dev 
